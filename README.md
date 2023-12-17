@@ -23,9 +23,9 @@ using DependencyInjection;
 using UnityEngine;
 
 public class ClassA : MonoBehaviour {
-    [Inject] ServiceA serviceA;
+    [Inject] IServiceA serviceA;
     
-    ServiceB serviceB;
+    IServiceB serviceB;
     
     [Inject]
     public void Init(ServiceB service) {
@@ -33,7 +33,7 @@ public class ClassA : MonoBehaviour {
     }
     
     [Inject]
-    public ServiceC Service { get; private set; }
+    public IServiceC Service { get; private set; }
 }
 ```
 
@@ -47,7 +47,7 @@ using UnityEngine;
 
 public class Provider : MonoBehaviour, IDependencyProvider {
     [Provide]
-    public ServiceA ProvideServiceA() {
+    public IServiceA ProvideServiceA() {
         return new ServiceA();
     }
 
@@ -62,13 +62,13 @@ using DependencyInjection;
 using UnityEngine;
 
 public class ClassB : MonoBehaviour {
-    [Inject] ServiceA serviceA;
+    [Inject] IServiceA serviceA;
     
-    ServiceB serviceB;
-    FactoryA factoryA;
+    IServiceB serviceB;
+    IFactoryA factoryA;
         
     [Inject] // Method injection supports multiple dependencies
-    public void Init(FactoryA factoryA, ServiceB serviceB) {
+    public void Init(IFactoryA factoryA, IServiceB serviceB) {
         this.factoryA = factoryA;
         this.serviceB = serviceB;
     }
@@ -91,7 +91,7 @@ public class ClassB : MonoBehaviour {
 
 ## YouTube
 
-[**Watch the tutorial video here**](https://youtu.be/4_DTAnigmaQ)
+[**Watch the tutorial video here**](https://youtu.be/PJcBJ60C970)
 
 You can also check out my [YouTube channel](https://www.youtube.com/@git-amend?sub_confirmation=1) for more Unity content.
 
