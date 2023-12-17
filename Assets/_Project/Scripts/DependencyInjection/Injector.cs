@@ -34,7 +34,7 @@ namespace DependencyInjection {
                 Inject(injectable);
             }
         }
-
+/**/
         void Inject(object instance) {
             var type = instance.GetType();
             
@@ -46,7 +46,7 @@ namespace DependencyInjection {
                 var fieldType = injectableField.FieldType;
                 var resolvedInstance = Resolve(fieldType);
                 if (resolvedInstance == null) {
-                    throw new Exception($"Failed to inject {fieldType.Name} into {type.Name}");
+                    throw new Exception($"Failed to inject dependency into field '{injectableField.Name}' of class '{type.Name}'.");
                 }
                 
                 injectableField.SetValue(instance, resolvedInstance);
@@ -62,13 +62,24 @@ namespace DependencyInjection {
                     .ToArray();
                 var resolvedInstances = requiredParameters.Select(Resolve).ToArray();
                 if (resolvedInstances.Any(resolvedInstance => resolvedInstance == null)) {
-                    throw new Exception($"Failed to inject {type.Name}.{injectableMethod.Name}");
+                    throw new Exception($"Failed to inject dependencies into method '{injectableMethod.Name}' of class '{type.Name}'.");
                 }
                 
                 injectableMethod.Invoke(instance, resolvedInstances);
             }
             
-            // TODO Inject into properties
+            // Inject into properties
+            var injectableProperties = type.GetProperties(k_bindingFlags)
+                .Where(member => Attribute.IsDefined(member, typeof(InjectAttribute)));
+            foreach (var injectableProperty in injectableProperties) {
+                var propertyType = injectableProperty.PropertyType;
+                var resolvedInstance = Resolve(propertyType);
+                if (resolvedInstance == null) {
+                    throw new Exception($"Failed to inject dependency into property '{injectableProperty.Name}' of class '{type.Name}'.");
+                }
+
+                injectableProperty.SetValue(instance, resolvedInstance);
+            }
         }
 
         void Register(IDependencyProvider provider) {
@@ -82,7 +93,7 @@ namespace DependencyInjection {
                 if (providedInstance != null) {
                     registry.Add(returnType, providedInstance);
                 } else {
-                    throw new Exception($"Provider {provider.GetType().Name} returned null for {returnType.Name}");
+                    throw new Exception($"Provider method '{method.Name}' in class '{provider.GetType().Name}' returned null when providing type '{returnType.Name}'.");
                 }
             }
         }

@@ -1,43 +1,45 @@
 # Unity C# Dependency Injection Lite
 
-Unity Dependency Injection Lite is a lightweight, easy-to-use dependency injection system for Unity. It leverages Unity's `MonoBehaviour` to automatically inject dependencies into your classes. This system supports field and method injections, and allows for easy setup of providers.
+![DependencyInjection](https://github.com/adammyhre/Unity-Dependency-Injection-Lite/assets/38876398/5a7c9183-8eb4-4346-b6e2-1d5b28ec7268)
+
+Unity Dependency Injection Lite is a lightweight, easy-to-use dependency injection system for Unity. It leverages Unity's `MonoBehaviour` to automatically inject dependencies into your classes. This system supports field, method and property injections, and allows for easy setup of providers.
 
 ## Features
 
 - **Automatic Dependency Injection**: Automatically injects dependencies into your Unity MonoBehaviours.
 - **Custom Attributes**: Use `[Inject]` and `[Provide]` attributes to denote injectable members and providers.
-- **Method Injection**: Supports method injection for more complex initialization.
+- **Method Injection**: Supports method injection for more complex and multiple initialization.
 - **Field Injection**: Simplify your code with direct field injection.
+- **Property Injection**: Supports property injection.
 
 ## Usage
 
-### Defining Injectable Classes
+### Defining Injectable Fields, Methods and Properties
 
-Use the `[Inject]` attribute on fields, methods, or properties (coming soon) to mark them as targets for injection.
+Use the `[Inject]` attribute on fields, methods, or properties to mark them as targets for injection.
 
 ```csharp
 using DependencyInjection;
 using UnityEngine;
 
 public class ClassA : MonoBehaviour {
-    [Inject] IEnvironmentSystem environmentSystem;
-    ServiceA serviceA;
-
+    [Inject] ServiceA serviceA;
+    
+    ServiceB serviceB;
+    
     [Inject]
-    public void Init(ServiceA serviceA) {
-        this.serviceA = serviceA;
+    public void Init(ServiceB service) {
+        this.serviceB = service;
     }
-
-    void Start() {
-        serviceA.Initialize("ServiceA initialized from ClassA");
-        environmentSystem.Initialize();
-    }
+    
+    [Inject]
+    public ServiceC Service { get; private set; }
 }
 ```
 
 ### Creating Providers
 
-Implement IDependencyProvider and use the [Provide] attribute on methods to define how dependencies are created.
+Implement IDependencyProvider and use the `[Provide]` attribute on methods to define how dependencies are created.
 
 ```csharp
 using DependencyInjection;
@@ -61,12 +63,14 @@ using UnityEngine;
 
 public class ClassB : MonoBehaviour {
     [Inject] ServiceA serviceA;
-    [Inject] ServiceB serviceB;
+    
+    ServiceB serviceB;
     FactoryA factoryA;
-
-    [Inject]
-    public void Init(FactoryA factoryA) {
+        
+    [Inject] // Method injection supports multiple dependencies
+    public void Init(FactoryA factoryA, ServiceB serviceB) {
         this.factoryA = factoryA;
+        this.serviceB = serviceB;
     }
 
     void Start() {
